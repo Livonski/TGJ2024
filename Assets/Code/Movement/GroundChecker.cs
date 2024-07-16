@@ -23,12 +23,8 @@ public class GroundChecker
     {
         // TODO fix me - this is a terible way of making things
         Vector2 positionMiddle = new Vector2(objectTransform.position.x, objectCollider.bounds.min.y);
-        //Vector2 positionLeft = new Vector2(objectTransform.position.x + objectCollider.bounds.min.x, objectCollider.bounds.min.y);
-        //Vector2 positionRight = new Vector2(objectTransform.position.x + objectCollider.bounds.max.x, objectCollider.bounds.min.y);
         Vector2 positionLeft = new Vector2(objectCollider.bounds.min.x, objectCollider.bounds.min.y);
         Vector2 positionRight = new Vector2(objectCollider.bounds.max.x, objectCollider.bounds.min.y);
-        // RaycastHit2D hit = Physics2D.Raycast(position, Vector2.down, checkDistance, groundLayer);
-        // RaycastHit2D middleHit = Physics2D.BoxCast(positionMiddle, new Vector2(1,1), objectTransform.rotation.z, Vector2.down, checkDistance, groundLayer);
 
         RaycastHit2D middleHit = Physics2D.Raycast(positionMiddle, Vector2.down, checkDistance, groundLayer);
         RaycastHit2D leftHit = Physics2D.Raycast(positionLeft, Vector2.down, checkDistance, groundLayer);

@@ -2,22 +2,28 @@ using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
-    private Movable movableComponent;
+    private Movable movable;
+    private JumpController jumpController;
 
     private void Awake()
     {
-        movableComponent = GetComponent<Movable>();
+        movable = GetComponent<Movable>();
+        jumpController = GetComponent<JumpController>();
     }
 
     private void Update()
     {
         Vector2 inputVector = new Vector2(Input.GetAxis("Horizontal"), 0);
         //if (inputVector != Vector2.zero)
-            movableComponent.MoveInDirection(inputVector);
+        movable.MoveInDirection(inputVector);
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            movableComponent.Jump();
+            jumpController.TryJump();
+        }
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            movable.Dash();
         }
     }
 }
