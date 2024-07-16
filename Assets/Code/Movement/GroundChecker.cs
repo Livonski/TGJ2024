@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GroundChecker
 {
@@ -20,15 +21,40 @@ public class GroundChecker
 
     public bool IsGrounded()
     {
-        Vector2 position = new Vector2(objectTransform.position.x, objectCollider.bounds.min.y);
-        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.down, checkDistance, groundLayer);
-        Debug.DrawRay(position, Vector2.down * checkDistance, hit.collider != null ? Color.green : Color.red);
+        // TODO fix me - this is a terible way of making things
+        Vector2 positionMiddle = new Vector2(objectTransform.position.x, objectCollider.bounds.min.y);
+        //Vector2 positionLeft = new Vector2(objectTransform.position.x + objectCollider.bounds.min.x, objectCollider.bounds.min.y);
+        //Vector2 positionRight = new Vector2(objectTransform.position.x + objectCollider.bounds.max.x, objectCollider.bounds.min.y);
+        Vector2 positionLeft = new Vector2(objectCollider.bounds.min.x, objectCollider.bounds.min.y);
+        Vector2 positionRight = new Vector2(objectCollider.bounds.max.x, objectCollider.bounds.min.y);
+        // RaycastHit2D hit = Physics2D.Raycast(position, Vector2.down, checkDistance, groundLayer);
+        // RaycastHit2D middleHit = Physics2D.BoxCast(positionMiddle, new Vector2(1,1), objectTransform.rotation.z, Vector2.down, checkDistance, groundLayer);
 
-        if (hit.collider != null)
+        RaycastHit2D middleHit = Physics2D.Raycast(positionMiddle, Vector2.down, checkDistance, groundLayer);
+        RaycastHit2D leftHit = Physics2D.Raycast(positionLeft, Vector2.down, checkDistance, groundLayer);
+        RaycastHit2D rightHit = Physics2D.Raycast(positionRight, Vector2.down, checkDistance, groundLayer);
+
+        Debug.DrawRay(positionMiddle, Vector2.down * checkDistance, middleHit.collider != null ? Color.green : Color.red);
+        Debug.DrawRay(positionLeft, Vector2.down * checkDistance, leftHit.collider != null ? Color.green : Color.red);
+        Debug.DrawRay(positionRight, Vector2.down * checkDistance, rightHit.collider != null ? Color.green : Color.red);
+
+        if (middleHit.collider != null)
         {
-            lastGroundNormal = hit.normal; // Update the ground normal when grounded
+            lastGroundNormal = middleHit.normal; 
             return true;
         }
+        if (leftHit.collider != null)
+        {
+            lastGroundNormal = leftHit.normal; 
+            return true;
+        }
+        if (rightHit.collider != null)
+        {
+            lastGroundNormal = rightHit.normal;
+            return true;
+        }
+
+
 
         return false;
     }

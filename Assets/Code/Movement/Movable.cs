@@ -68,6 +68,8 @@ public class Movable : MonoBehaviour
         Vector2 groundNormal = groundChecker.GetGroundNormal();
         if (!groundChecker.IsGrounded())
         {
+            // movementPart *= 0.95f;
+            movementPart = new Vector2(movementPart.x * 0.999f, movementPart.y);
             return;
         }
         Vector2 targetVelocity = surfaceSlider.projectVector(groundNormal, inputDirection);
