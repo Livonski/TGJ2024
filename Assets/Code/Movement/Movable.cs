@@ -17,26 +17,19 @@ public class Movable : MonoBehaviour
 
     [SerializeField] private float gravity = 1.0f;
 
-    [SerializeField] private AnimationCurve dashCurve;
-    [SerializeField] private float dashForce;
-    [SerializeField] private float dashDuration;
-    private float dashTimeElapsed;
-
     private SurfaceSlider surfaceSlider;
     private JumpController jumpController;
+    private DashController dashController;
 
     private Vector2 currentVelocity;
     private List<Vector2> velocities;
     private Vector2 movementPart;
 
-    private bool moved = false;
-    private bool jumped = false;
-    private bool dashed = false;
-
     private void Awake()
     {
         rigidBody2D = GetComponent<Rigidbody2D>();
         jumpController = GetComponent<JumpController>();
+        dashController = GetComponent<DashController>();
 
         groundChecker = new GroundChecker(transform, GetComponent<Collider2D>(), groundLayer, rayLength);
         surfaceSlider = new SurfaceSlider(maxSpeed);
@@ -51,50 +44,23 @@ public class Movable : MonoBehaviour
     {
         applyVelocity();
     }
-
-    /*private void applyVelocity()
-    {
-        bool grounded = groundChecker.IsGrounded();
-        if (grounded & !isJumping)
-        {
-            jumpPart = new Vector2(0, -1f);
-        }
-        else
-        {
-            jumpPart += isJumping ? calculateJumpVector() : new Vector2(0, -gravity);
-        }
-        // jumpPart.y = Mathf.Clamp(jumpPart.y,-gravity, float.MaxValue);
-        // gravityPart = isJumping ? Vector2.zero : new Vector2(0, -gravity);
-
-        //Debug.Log("jump part : " + jumpPart);
-
-        dashPart = (dashed && !grounded) ? calculateDashVelocity() : Vector2.zero;
-        Debug.Log(dashPart);
-        currentVelocity = movementPart + jumpPart + dashPart;
-        rigidBody2D.MovePosition(rigidBody2D.position + currentVelocity * Time.fixedDeltaTime);
-    }*/
     private void applyVelocity()
     {
         foreach (Vector2 v in velocities)
         {
             currentVelocity += v;
         }
-        currentVelocity += (!dashed && !jumpController.hasJumped()) ? new Vector2(0, -gravity) : Vector2.zero;
+        currentVelocity += (!dashController.hasDashed() && !jumpController.hasJumped()) ? new Vector2(0, -gravity) : Vector2.zero;
         currentVelocity += movementPart;
-        //Debug.Log("movement part : " + movementPart + "current velocity : " + currentVelocity);
         rigidBody2D.MovePosition(rigidBody2D.position + currentVelocity * Time.fixedDeltaTime);
         currentVelocity = Vector2.zero;
         velocities.Clear();
-        //moved = false;
-        dashed = false;
     }
-
     public void addVelocity(Vector2 velocity)
     {
         if (velocity != null)
             velocities.Add(velocity);
     }
-
     public void MoveInDirection(Vector2 inputDirection)
     {
         Vector2 groundNormal = groundChecker.GetGroundNormal();
@@ -111,28 +77,5 @@ public class Movable : MonoBehaviour
         // Clamp the movement increment to not exceed the velocity difference
         movementIncrement = movementIncrement.magnitude > velocityDifference.magnitude ? velocityDifference : movementIncrement;
         movementPart += movementIncrement;
-        //Debug.Log(movementPart);
-        //if (!moved)
-        //    velocities.Add(movementPart);
-        //moved = true;
-    }
-
-    private Vector2 calculateDashVelocity()
-    {
-        float horizontalVelocity = dashForce * dashCurve.Evaluate(dashTimeElapsed / dashDuration) * dashDuration;
-        //Debug.Log(horizontalVelocity);
-        dashTimeElapsed += Time.fixedDeltaTime;
-        if (dashTimeElapsed >= dashDuration)
-            dashed = false;
-        return new Vector2(horizontalVelocity, 0);
-    }
-
-    public void Dash()
-    {
-        if(!dashed)
-        {
-            dashed = true;
-            dashTimeElapsed = 0;
-        }
     }
 }

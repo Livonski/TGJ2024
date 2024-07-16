@@ -4,11 +4,13 @@ public class InputHandler : MonoBehaviour
 {
     private Movable movable;
     private JumpController jumpController;
+    private DashController dashController;
 
     private void Awake()
     {
         movable = GetComponent<Movable>();
         jumpController = GetComponent<JumpController>();
+        dashController = GetComponent<DashController>();
     }
 
     private void Update()
@@ -23,7 +25,7 @@ public class InputHandler : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            movable.Dash();
+            dashController.TryDash();
         }
     }
 }
