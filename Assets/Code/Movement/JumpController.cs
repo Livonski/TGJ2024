@@ -34,13 +34,14 @@ public class JumpController : MonoBehaviour
         movable.addVelocity(jumpVelocity);
     }
 
-    public void TryJump()
+    public bool TryJump()
     {
         if (eligibleToJump)
         {
             jumped = true;
             jumpCharges--;
         }
+        return eligibleToJump;
     }
 
     public bool hasJumped()

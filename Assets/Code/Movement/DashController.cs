@@ -20,6 +20,8 @@ public class DashController : MonoBehaviour
     private bool grounded;
     private float dashTimeElapsed;
 
+    private Vector2 facingDirection;
+
     private void Awake()
     {
         movable = GetComponent<Movable>();
@@ -31,18 +33,20 @@ public class DashController : MonoBehaviour
     {
         grounded = groundChecker.IsGrounded();
         dashCharges = grounded ? maxDashCharges : dashCharges;
-        eligibleToDash = grounded ^ (!grounded && dashCharges > 0 && dashCharges < maxDashCharges);
+        eligibleToDash = dashCharges > 0;
         Vector2 jumpVelocity = calculateDashVector();
         movable.addVelocity(jumpVelocity);
     }
 
-    public void TryDash()
+    public bool TryDash(Vector2 direction)
     {
         if (eligibleToDash)
         {
             dashed = true;
             dashCharges--;
+            facingDirection = direction;
         }
+        return eligibleToDash;
     }
 
     public bool hasDashed()
@@ -62,7 +66,9 @@ public class DashController : MonoBehaviour
             dashed = false;
             dashTimeElapsed = 0;
         }
-        return new Vector2(0, horizontalVelocity);
+        horizontalVelocity = facingDirection.x > 0 ? horizontalVelocity : -horizontalVelocity;
+
+        return new Vector2(horizontalVelocity, 0);
     }
 
 }
