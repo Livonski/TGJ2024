@@ -109,6 +109,15 @@ public class VoronoiDiagram : MonoBehaviour
         return null;
     }
 
+    public Texture2D GetVoronoiTexture()
+    {
+        if (voronoiTexture != null)
+        {
+            return voronoiTexture;
+        }
+        return null;
+    }
+
     private Vector2[] GenerateRandomPoints(int width, int height, int count)
     {
         Vector2[] points = new Vector2[count];
