@@ -26,13 +26,11 @@ public class InputHandler : MonoBehaviour
         float horizontalDirection = Input.GetAxis("Horizontal");
         facingDirection = horizontalDirection > 0 ? Vector2.right : Vector2.left;
         Vector2 inputVector = new Vector2(horizontalDirection, 0);
-        //if (inputVector != Vector2.zero)
         movable.MoveInDirection(inputVector);
 
         updateCashTime();
         cashInput();
         executeInputs();
-        Debug.Log(cashList.Count);
     }
 
     private void cashInput()
@@ -50,6 +48,7 @@ public class InputHandler : MonoBehaviour
         }
     }
 
+    // TODO fix this stuff because unity doesn't like it. Thanks god it works... for now...
     private void executeInputs()
     {
         foreach (InputCash cash in cashList)
@@ -73,11 +72,9 @@ public class InputHandler : MonoBehaviour
         foreach (InputCash cash in cashList)
         {
             cash.reduceTime(Time.deltaTime);
-            Debug.Log(cash.reminingTime());
             if (cash.reminingTime() <= 0)
             {
                 cashList.Remove(cash);
-                Debug.Log("it's time to die");
             }
         }
     }

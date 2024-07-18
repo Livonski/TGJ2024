@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class DashController : MonoBehaviour
 {
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] float rayLength = 0.2f;
     private GroundChecker groundChecker;
     private Movable movable;
 
@@ -22,10 +20,12 @@ public class DashController : MonoBehaviour
 
     private Vector2 facingDirection;
 
+    // TODO dash recharge midair
+
     private void Awake()
     {
         movable = GetComponent<Movable>();
-        groundChecker = new GroundChecker(transform, GetComponent<Collider2D>(), groundLayer, rayLength);
+        groundChecker = GetComponent<GroundChecker>();
         dashCharges = maxDashCharges;
     }
 
@@ -59,7 +59,6 @@ public class DashController : MonoBehaviour
         if (!dashed)
             return Vector2.zero;
         float horizontalVelocity = dashForce + dashCurve.Evaluate(dashTimeElapsed / dashDuration) * dashDuration;
-        //Debug.Log(verticalVelocity);
         dashTimeElapsed += Time.fixedDeltaTime;
         if (dashTimeElapsed >= dashDuration)
         {

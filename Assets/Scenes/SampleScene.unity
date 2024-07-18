@@ -804,6 +804,7 @@ GameObject:
   - component: {fileID: 497548781}
   - component: {fileID: 497548780}
   - component: {fileID: 497548785}
+  - component: {fileID: 497548788}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -850,6 +851,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f308dd35e1d84d83e8b0e18e4efb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inoutCashingTime: 0.05
 --- !u!114 &497548782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -865,11 +867,8 @@ MonoBehaviour:
   maxSpeed: 10
   accelerationTime: 1.5
   decelerationTime: 0.5
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  rayLength: 0.2
-  gravity: 10
+  gravity: 0.4
+  gravityVelocity: {x: 0, y: 0}
 --- !u!212 &497548783
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -931,7 +930,7 @@ Transform:
   m_GameObject: {fileID: 497548779}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.5, y: -2.3, z: 0}
+  m_LocalPosition: {x: 0.9, y: -2.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -994,53 +993,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8b508633cc31764ea78e0aa9d884a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  rayLength: 0.2
   jumpCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 2.7140863
-      outSlope: 2.7140863
+      inSlope: 1.75
+      outSlope: 1.75
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.2936749
-      value: 0.797059
+      time: 0.4
+      value: 0.7
+      inSlope: 0.1
+      outSlope: 0.1
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 10
+      value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 136
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.6138245
-      value: 0.60975343
-      inSlope: -0.266655
-      outSlope: -0.266655
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1.0041504
-      value: 0.39885867
-      inSlope: -0.5403043
-      outSlope: -0.5403043
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  jumpForce: 3.5
+  jumpForce: 4
   jumpDuration: 1
   maxJumpCharges: 2
 --- !u!114 &497548787
@@ -1055,10 +1041,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e32c3206bd1987a4ea40751415f36230, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  rayLength: 0.2
   dashCurve:
     serializedVersion: 2
     m_Curve:
@@ -1083,9 +1065,28 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  dashForce: 2
-  dashDuration: 2
-  maxDashCharges: 1
+  dashForce: 10
+  dashDuration: 0.5
+  maxDashCharges: 2
+--- !u!114 &497548788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497548779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91ef6d84b8beea04e920c09bbfba91c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  rayLength: 0.2
+  groundCasheTime: 0.1
+  lastGrounded: 0
+  grounded: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

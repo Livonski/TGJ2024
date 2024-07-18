@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class JumpController : MonoBehaviour
 {
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] float rayLength = 0.2f;
     private GroundChecker groundChecker;
     private Movable movable;
 
@@ -21,7 +19,7 @@ public class JumpController : MonoBehaviour
     private void Awake()
     {
         movable = GetComponent<Movable>();
-        groundChecker = new GroundChecker(transform, GetComponent<Collider2D>(), groundLayer, rayLength);
+        groundChecker = GetComponent<GroundChecker>();
         jumpCharges = maxJumpCharges;
     }
 
@@ -53,7 +51,6 @@ public class JumpController : MonoBehaviour
         if (!jumped)
             return Vector2.zero;
         float verticalVelocity = jumpForce + jumpCurve.Evaluate(jumpTimeElapsed / jumpDuration) * jumpDuration;
-        //Debug.Log(verticalVelocity);
         jumpTimeElapsed += Time.fixedDeltaTime;
         if (jumpTimeElapsed >= jumpDuration)
         {

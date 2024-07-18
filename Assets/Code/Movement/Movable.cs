@@ -10,12 +10,11 @@ public class Movable : MonoBehaviour
     private float accelerationPerSecond;
     private float decelerationPerSecond;
 
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] float rayLength = 0.5f;
     private Rigidbody2D rigidBody2D;
     private GroundChecker groundChecker;
 
     [SerializeField] private float gravity = 1.0f;
+    [SerializeField] private Vector2 gravityVelocity;
 
     private SurfaceSlider surfaceSlider;
     private JumpController jumpController;
@@ -30,8 +29,8 @@ public class Movable : MonoBehaviour
         rigidBody2D = GetComponent<Rigidbody2D>();
         jumpController = GetComponent<JumpController>();
         dashController = GetComponent<DashController>();
+        groundChecker = GetComponent<GroundChecker>();
 
-        groundChecker = new GroundChecker(transform, GetComponent<Collider2D>(), groundLayer, rayLength);
         surfaceSlider = new SurfaceSlider(maxSpeed);
 
         accelerationPerSecond = maxSpeed / accelerationTime;
@@ -42,6 +41,7 @@ public class Movable : MonoBehaviour
 
     private void FixedUpdate()
     {
+        calculateGravity();
         applyVelocity();
     }
     private void applyVelocity()
@@ -50,11 +50,16 @@ public class Movable : MonoBehaviour
         {
             currentVelocity += v;
         }
-        currentVelocity += (!dashController.hasDashed() && !jumpController.hasJumped()) ? new Vector2(0, -gravity) : Vector2.zero;
+        currentVelocity += (!dashController.hasDashed() && !jumpController.hasJumped()) ? gravityVelocity : Vector2.zero;
         currentVelocity += movementPart;
         rigidBody2D.MovePosition(rigidBody2D.position + currentVelocity * Time.fixedDeltaTime);
         currentVelocity = Vector2.zero;
         velocities.Clear();
+    }
+
+    private void calculateGravity()
+    {
+        gravityVelocity = groundChecker.IsGrounded() ? new Vector2 (0,-0.5f) : new Vector2(0, gravityVelocity.y - gravity);
     }
     public void addVelocity(Vector2 velocity)
     {
