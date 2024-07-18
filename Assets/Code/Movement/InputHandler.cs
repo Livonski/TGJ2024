@@ -8,6 +8,7 @@ public class InputHandler : MonoBehaviour
     private Movable movable;
     private JumpController jumpController;
     private DashController dashController;
+    private Shooter shooter;
 
     private Vector2 facingDirection;
 
@@ -19,6 +20,7 @@ public class InputHandler : MonoBehaviour
         movable = GetComponent<Movable>();
         jumpController = GetComponent<JumpController>();
         dashController = GetComponent<DashController>();
+        shooter = GetComponent<Shooter>();
     }
 
     private void Update()
@@ -27,6 +29,14 @@ public class InputHandler : MonoBehaviour
         facingDirection = horizontalDirection > 0 ? Vector2.right : Vector2.left;
         Vector2 inputVector = new Vector2(horizontalDirection, 0);
         movable.MoveInDirection(inputVector);
+
+        if (Input.GetMouseButtonDown(0)) // Checks if the left mouse button is clicked
+        {
+            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 shootingDirection = new Vector2(mousePosition.x - shooter.transform.position.x, mousePosition.y - shooter.transform.position.y);
+
+            shooter.ShootInDirection(shootingDirection); // Call shoot method on shooter
+        }
 
         updateCashTime();
         cashInput();
@@ -51,30 +61,34 @@ public class InputHandler : MonoBehaviour
     // TODO fix this stuff because unity doesn't like it. Thanks god it works... for now...
     private void executeInputs()
     {
-        foreach (InputCash cash in cashList)
+        for (int i = cashList.Count - 1; i >= 0; i--)
         {
-            bool succes = false;
-            if(cash.getKeyCode() == KeyCode.Space)
+            InputCash cash = cashList[i];
+            bool success = false;
+            if (cash.getKeyCode() == KeyCode.Space)
             {
-                succes = jumpController.TryJump();
+                success = jumpController.TryJump();
             }
             else
             {
-                succes = dashController.TryDash(facingDirection);
+                success = dashController.TryDash(facingDirection);
             }
-            if (succes)
-                cashList.Remove(cash);
+            if (success)
+            {
+                cashList.RemoveAt(i);
+            }
         }
     }
 
     private void updateCashTime()
     {
-        foreach (InputCash cash in cashList)
+        for (int i = cashList.Count - 1; i >= 0; i--)
         {
+            InputCash cash = cashList[i];
             cash.reduceTime(Time.deltaTime);
             if (cash.reminingTime() <= 0)
             {
-                cashList.Remove(cash);
+                cashList.RemoveAt(i);
             }
         }
     }

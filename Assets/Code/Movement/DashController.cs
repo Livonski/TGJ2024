@@ -12,6 +12,7 @@ public class DashController : MonoBehaviour
     [SerializeField] private float dashDuration = 1.0f;
 
     [SerializeField] private int maxDashCharges;
+
     private int dashCharges;
     private bool dashed;
     private bool eligibleToDash;
