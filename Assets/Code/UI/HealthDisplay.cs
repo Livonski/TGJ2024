@@ -22,8 +22,6 @@ public class HealthDisplay : MonoBehaviour
 
     void DisplayHealth()
     {
-        Debug.Log("things should happen");
-        Debug.Log(target.Health + " : " + target.MaxHealth + " = " + (float)target.Health / target.MaxHealth);
         if (healthText != null)
         {
             healthText.text = "Health: " + target.Health;
