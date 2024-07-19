@@ -9,6 +9,7 @@ public class InputHandler : MonoBehaviour
     private JumpController jumpController;
     private DashController dashController;
     private Shooter shooter;
+    private Damageable damageable;
 
     private Vector2 facingDirection;
 
@@ -21,6 +22,7 @@ public class InputHandler : MonoBehaviour
         jumpController = GetComponent<JumpController>();
         dashController = GetComponent<DashController>();
         shooter = GetComponent<Shooter>();
+        damageable = GetComponent<Damageable>();
     }
 
     private void Update()
@@ -56,9 +58,14 @@ public class InputHandler : MonoBehaviour
             newInput = new InputCash(inoutCashingTime, KeyCode.LeftShift);
             cashList.Add(newInput);
         }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            newInput = new InputCash(inoutCashingTime, KeyCode.E);
+            cashList.Add(newInput);
+        }
     }
 
-    // TODO fix this stuff because unity doesn't like it. Thanks god it works... for now...
+    //TODO fix me, it's terrible way of doing things
     private void executeInputs()
     {
         for (int i = cashList.Count - 1; i >= 0; i--)
@@ -69,9 +76,13 @@ public class InputHandler : MonoBehaviour
             {
                 success = jumpController.TryJump();
             }
-            else
+            if (cash.getKeyCode() == KeyCode.LeftShift)
             {
                 success = dashController.TryDash(facingDirection);
+            }
+            if (cash.getKeyCode() == KeyCode.E)
+            {
+                success = damageable.TryActivateShield();
             }
             if (success)
             {
