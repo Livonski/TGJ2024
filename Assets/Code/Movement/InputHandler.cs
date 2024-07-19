@@ -32,7 +32,7 @@ public class InputHandler : MonoBehaviour
         Vector2 inputVector = new Vector2(horizontalDirection, 0);
         movable.MoveInDirection(inputVector);
 
-        if (Input.GetMouseButtonDown(0)) // Checks if the left mouse button is clicked
+        if (Input.GetMouseButtonDown(0) && AbilityManager.Instance.HasAbility("shooting")) // Checks if the left mouse button is clicked
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 shootingDirection = new Vector2(mousePosition.x - shooter.transform.position.x, mousePosition.y - shooter.transform.position.y);
@@ -53,12 +53,12 @@ public class InputHandler : MonoBehaviour
             newInput = new InputCash(inoutCashingTime, KeyCode.Space);
             cashList.Add(newInput);
         }
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift) && AbilityManager.Instance.HasAbility("dash"))
         {
             newInput = new InputCash(inoutCashingTime, KeyCode.LeftShift);
             cashList.Add(newInput);
         }
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) && AbilityManager.Instance.HasAbility("shield"))
         {
             newInput = new InputCash(inoutCashingTime, KeyCode.E);
             cashList.Add(newInput);

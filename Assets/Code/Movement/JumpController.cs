@@ -54,6 +54,12 @@ public class JumpController : MonoBehaviour
     {
         return jumped;
     }
+
+    public void setMaxJumpCharges(int newMAxJumpCharges)
+    {
+        maxJumpCharges = newMAxJumpCharges;
+    }
+
     private Vector2 calculateJumpVector()
     {
         if (!jumped)
