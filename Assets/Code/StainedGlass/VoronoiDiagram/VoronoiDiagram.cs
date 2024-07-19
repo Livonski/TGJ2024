@@ -73,7 +73,11 @@ public class VoronoiDiagram : MonoBehaviour
         int height = texture.height;
 
         voronoiTexture = new Texture2D(width, height);
-        Vector2[] seedPoints = GenerateRandomPoints(width, height, seedPointCount);
+        ColorDensityTextureGenerator generator = new ColorDensityTextureGenerator(sourceTexture);
+        Texture2D colorDensityTexture = generator.GenerateColorDensityTexture();
+
+        // Vector2[] seedPoints = GenerateRandomPoints(width, height, seedPointCount);
+        Vector2[] seedPoints = CDFPointsDistribution(colorDensityTexture, seedPointCount);
         quadtree = new Quadtree(new Rect(0, 0, width, height));
 
         // Insert seed points into Quadtree
@@ -132,6 +136,52 @@ public class VoronoiDiagram : MonoBehaviour
             colors[i] = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
         }
         return colors;
+    }
+
+    private Vector2[] CDFPointsDistribution(Texture2D imageDensity, int count)
+    {
+        // Get the pixel color data from the density image
+        Color[] pixels = imageDensity.GetPixels();
+        int width = imageDensity.width;
+        int height = imageDensity.height;
+
+        Vector2[] points = new Vector2[count];
+        UnityEngine.Random.InitState(randomSeed);
+
+        float[] pixelValues = new float[pixels.Length];
+        float totalValue = 0f;
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            pixelValues[i] = pixels[i].grayscale;
+            totalValue += pixelValues[i];
+        }
+
+        if (totalValue == 0)
+        {
+            Debug.LogError("The density image has no non-zero values.");
+            return null;
+        }
+
+        float[] cdf = new float[pixelValues.Length];
+        float cumulative = 0f;
+        for (int i = 0; i < pixelValues.Length; i++)
+        {
+            cumulative += pixelValues[i] / totalValue;
+            cdf[i] = cumulative;
+        }
+
+        System.Random random = new System.Random();
+        for (int i = 0; i < seedPointCount; i++)
+        {
+            float randomValue = (float)random.NextDouble();
+            int index = System.Array.FindIndex(cdf, value => value >= randomValue);
+
+            int x = index % width;
+            int y = index / width;
+
+            points[i] = new Vector3(x, y);
+        }
+        return points;
     }
 
     private void PopulateVoronoiTexture(int width, int height, Vector2[] seedPoints, Color[] colors)
@@ -417,4 +467,59 @@ public enum VoronoiOutputMode
     Regions,
     Edges,
     RegionsWithEdges
+}
+
+public class ColorDensityTextureGenerator
+{
+    private Texture2D originalTexture;
+
+    public ColorDensityTextureGenerator(Texture2D texture)
+    {
+        originalTexture = texture;
+    }
+
+    public Texture2D GenerateColorDensityTexture()
+    {
+        int width = originalTexture.width;
+        int height = originalTexture.height;
+        Texture2D newTexture = new Texture2D(width, height);
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                float colorChange = CalculateColorChange(x, y);
+                float normalizedChange = Mathf.Clamp(colorChange, 0, 1);
+                newTexture.SetPixel(x, y, new Color(normalizedChange, normalizedChange, normalizedChange));
+            }
+        }
+
+        newTexture.Apply();
+        return newTexture;
+    }
+
+    private float CalculateColorChange(int x, int y)
+    {
+        Color currentColor = originalTexture.GetPixel(x, y);
+        float colorChangeSum = 0;
+        int count = 0;
+
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (i == 0 && j == 0) continue;
+                int checkX = x + i;
+                int checkY = y + j;
+                if (checkX >= 0 && checkX < originalTexture.width && checkY >= 0 && checkY < originalTexture.height)
+                {
+                    Color neighborColor = originalTexture.GetPixel(checkX, checkY);
+                    colorChangeSum += (currentColor - neighborColor).magnitude;
+                    count++;
+                }
+            }
+        }
+
+        return colorChangeSum / count;
+    }
 }
