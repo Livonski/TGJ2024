@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class AbilityManager : MonoBehaviour
 {
+    [SerializeField] private bool godMode;
     public static AbilityManager Instance { get; private set; }
 
     private JumpController jumpController;
@@ -21,6 +22,16 @@ public class AbilityManager : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
         jumpController = GetComponent<JumpController>();
+        if (godMode)
+            enableGodMode();
+    }
+
+    private void enableGodMode()
+    {
+        GrantAbility("dash");
+        GrantAbility("doubleJump");
+        GrantAbility("shield");
+        GrantAbility("shooting");
     }
 
     public void GrantAbility(string abilityName)
