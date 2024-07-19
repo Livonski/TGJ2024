@@ -20,6 +20,9 @@ public class Movable : MonoBehaviour
     private JumpController jumpController;
     private DashController dashController;
 
+    private bool hasDashed = false;
+    private bool hasJumped = false;
+
     private Vector2 currentVelocity;
     private List<Vector2> velocities;
     private Vector2 movementPart;
@@ -46,11 +49,16 @@ public class Movable : MonoBehaviour
     }
     private void applyVelocity()
     {
+        if (jumpController != null)
+            hasJumped = jumpController.hasJumped();
+        if (dashController != null)
+            hasDashed = dashController.hasDashed();
+
         foreach (Vector2 v in velocities)
         {
             currentVelocity += v;
         }
-        currentVelocity += (!dashController.hasDashed() && !jumpController.hasJumped()) ? gravityVelocity : Vector2.zero;
+        currentVelocity += (!hasDashed && !hasJumped) ? gravityVelocity : Vector2.zero;
         currentVelocity += movementPart;
         rigidBody2D.MovePosition(rigidBody2D.position + currentVelocity * Time.fixedDeltaTime);
         currentVelocity = Vector2.zero;

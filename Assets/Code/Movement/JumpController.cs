@@ -25,11 +25,18 @@ public class JumpController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        eligibleToJump = grounded || (!grounded && jumpCharges > 0);
+
         grounded = groundChecker.IsGrounded();
-        jumpCharges = grounded ? maxJumpCharges : jumpCharges;
-        eligibleToJump = grounded ^ (!grounded && jumpCharges > 0 && jumpCharges < maxJumpCharges);
-        Vector2 jumpVelocity = calculateJumpVector();
-        movable.addVelocity(jumpVelocity);
+        if (grounded)
+        {
+            jumpCharges = maxJumpCharges;
+        }
+        if (jumped)
+        {
+            Vector2 jumpVelocity = calculateJumpVector();
+            movable.addVelocity(jumpVelocity);
+        }
     }
 
     public bool TryJump()
@@ -38,14 +45,21 @@ public class JumpController : MonoBehaviour
         {
             jumped = true;
             jumpCharges--;
+            return true;
         }
-        return eligibleToJump;
+        return false;
     }
 
     public bool hasJumped()
     {
         return jumped;
     }
+
+    public void setMaxJumpCharges(int newMAxJumpCharges)
+    {
+        maxJumpCharges = newMAxJumpCharges;
+    }
+
     private Vector2 calculateJumpVector()
     {
         if (!jumped)

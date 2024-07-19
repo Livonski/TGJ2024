@@ -36,8 +36,6 @@ public class GroundChecker : MonoBehaviour
     private void FixedUpdate()
     {
         grounded = updateGrounded();
-        Debug.Log("grounded: " + grounded);
-        Debug.Log("last grounded: " + lastGrounded);
         if((grounded == false) && (lastGrounded == true))
         {
             time += Time.deltaTime;
