@@ -43,7 +43,7 @@ public class VoronoiDiagram : MonoBehaviour
         try
         {
             GenerateVoronoiTexture();
-            ApplyTexture();
+            ApplyTexture(voronoiTexture);
         }
         catch (System.Exception ex)
         {
@@ -81,6 +81,8 @@ public class VoronoiDiagram : MonoBehaviour
         voronoiTexture = new Texture2D(width, height);
         ColorDensityTextureGenerator generator = new ColorDensityTextureGenerator(sourceTexture, alphaThreshold);
         Texture2D colorDensityTexture = generator.GenerateColorDensityTexture();
+
+        //ApplyTexture(colorDensityTexture);
 
         // Vector2[] seedPoints = GenerateRandomPoints(width, height, seedPointCount);
         Vector2[] seedPoints = CDFPointsDistribution(colorDensityTexture, seedPointCount);
@@ -339,6 +341,26 @@ public class VoronoiDiagram : MonoBehaviour
         return colors;
     }
 
+    public void ApplyTexture(Texture2D texture)
+    {
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            Vector3 originalScale = transform.localScale;
+            Vector2 originalSize = spriteRenderer.sprite.bounds.size;
+
+            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100);
+
+            transform.localScale = originalScale;
+            spriteRenderer.sprite = newSprite;
+            spriteRenderer.size = originalSize;
+        }
+        else
+        {
+            throw new System.Exception("SpriteRenderer component not found.");
+        }
+    }
+
     public void ApplyTexture()
     {
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
@@ -510,8 +532,8 @@ public class ColorDensityTextureGenerator
             for (int y = 0; y < height; y++)
             {
                 float colorChange = CalculateColorChange(x, y);
-                if (colorChange == -1)
-                    alphaChannel = 0;
+                //if (colorChange == -1)
+                alphaChannel = colorChange == -1 ? 0 : 1;
                 float normalizedChange = Mathf.Clamp(colorChange, 0, 1);
                 newTexture.SetPixel(x, y, new Color(normalizedChange, normalizedChange, normalizedChange, alphaChannel));
             }
