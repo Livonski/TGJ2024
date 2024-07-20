@@ -6,28 +6,34 @@ using UnityEngine;
 public class VoronoiDiagram : MonoBehaviour
 {
     [Tooltip("The source texture used to determine the width and height for the Voronoi diagram. If not assigned, the texture from the GameObject's SpriteRenderer will be used.")]
-    public Texture2D sourceTexture;
+    [SerializeField] private Texture2D sourceTexture;
 
     [Tooltip("Controls whether to display regions or only edges.")]
-    public VoronoiOutputMode outputMode = VoronoiOutputMode.Regions;
+    [SerializeField] private VoronoiOutputMode outputMode = VoronoiOutputMode.Regions;
 
     [Tooltip("Color used for the edges between Voronoi regions.")]
-    public Color edgeColor = Color.black;
+    [SerializeField] private Color edgeColor = Color.black;
 
     [Tooltip("Thickness of the edges between Voronoi regions.")]
-    public float edgeThickness = 1.0f;
+    [SerializeField] private float edgeThickness = 1.0f;
 
     [Tooltip("Controls the falloff rate of the edge color blending into the region color.")]
-    public float edgeFalloff = 5.0f;  // Higher values mean a sharper transition
+    [SerializeField] private float edgeFalloff = 5.0f;  // Higher values mean a sharper transition
 
     [Tooltip("The number of seed points for the Voronoi diagram.")]
-    public int seedPointCount = 1000;
+    [SerializeField] private int seedPointCount = 1000;
 
     [Tooltip("Seed for the random number generator to ensure consistent point generation.")]
-    public int randomSeed = 42;
+    [SerializeField] private int randomSeed = 42;
 
     [Tooltip("Array of colors for the Voronoi regions. If not provided, random colors will be used.")]
-    public Color[] regionColors;
+    [SerializeField] private Color[] regionColors;
+
+    [Range(0.0f, 1.0f)]
+    [SerializeField] private float baseAlphaChannel;
+
+    [Range(0.0f, 1.0f)]
+    [SerializeField] private float alphaThreshold;
 
     private Texture2D voronoiTexture;
     private Quadtree quadtree;
@@ -73,7 +79,7 @@ public class VoronoiDiagram : MonoBehaviour
         int height = texture.height;
 
         voronoiTexture = new Texture2D(width, height);
-        ColorDensityTextureGenerator generator = new ColorDensityTextureGenerator(sourceTexture);
+        ColorDensityTextureGenerator generator = new ColorDensityTextureGenerator(sourceTexture, alphaThreshold);
         Texture2D colorDensityTexture = generator.GenerateColorDensityTexture();
 
         // Vector2[] seedPoints = GenerateRandomPoints(width, height, seedPointCount);
@@ -140,26 +146,29 @@ public class VoronoiDiagram : MonoBehaviour
 
     private Vector2[] CDFPointsDistribution(Texture2D imageDensity, int count)
     {
-        // Get the pixel color data from the density image
         Color[] pixels = imageDensity.GetPixels();
         int width = imageDensity.width;
         int height = imageDensity.height;
-
-        Vector2[] points = new Vector2[count];
-        UnityEngine.Random.InitState(randomSeed);
 
         float[] pixelValues = new float[pixels.Length];
         float totalValue = 0f;
         for (int i = 0; i < pixels.Length; i++)
         {
-            pixelValues[i] = pixels[i].grayscale;
-            totalValue += pixelValues[i];
+            if (pixels[i].a > 0)
+            {
+                pixelValues[i] = pixels[i].grayscale;
+                totalValue += pixelValues[i];
+            }
+            else
+            {
+                pixelValues[i] = 0f;
+            }
         }
 
         if (totalValue == 0)
         {
-            Debug.LogError("The density image has no non-zero values.");
-            return null;
+            Debug.LogError("The density image has no valid values below the alpha threshold.");
+            return new Vector2[0];
         }
 
         float[] cdf = new float[pixelValues.Length];
@@ -170,17 +179,19 @@ public class VoronoiDiagram : MonoBehaviour
             cdf[i] = cumulative;
         }
 
+        Vector2[] points = new Vector2[count];
         System.Random random = new System.Random();
-        for (int i = 0; i < seedPointCount; i++)
+        for (int i = 0; i < count; i++)
         {
             float randomValue = (float)random.NextDouble();
-            int index = System.Array.FindIndex(cdf, value => value >= randomValue);
+            int index = Array.FindIndex(cdf, value => value >= randomValue);
 
             int x = index % width;
             int y = index / width;
 
-            points[i] = new Vector3(x, y);
+            points[i] = new Vector2(x, y);
         }
+
         return points;
     }
 
@@ -222,22 +233,32 @@ public class VoronoiDiagram : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                Vector2 queryPoint = new Vector2(x, y);
-                Vector2 nearestSeedPoint = quadtree.FindNearest(queryPoint);
-                int closestSeedIndex = Array.IndexOf(seedPoints, nearestSeedPoint);
-                regionMap[x, y] = closestSeedIndex;
-
-                if (!regionColors.ContainsKey(closestSeedIndex))
-                {
-                    regionColors[closestSeedIndex] = new List<Color>();
-                }
                 Color pixelColor = sourceTexture.GetPixel(x, y);
-                regionColors[closestSeedIndex].Add(pixelColor);
 
-                if (outputMode == VoronoiOutputMode.Regions || outputMode == VoronoiOutputMode.RegionsWithEdges)
+                // Check if the alpha value of the pixel is below the threshold
+                if (pixelColor.a > alphaThreshold)
                 {
-                    // Temporarily set to any color; will overwrite with average color later
-                    voronoiTexture.SetPixel(x, y, Color.clear);
+                    Vector2 queryPoint = new Vector2(x, y);
+                    Vector2 nearestSeedPoint = quadtree.FindNearest(queryPoint);
+                    int closestSeedIndex = Array.IndexOf(seedPoints, nearestSeedPoint);
+
+                    if (closestSeedIndex >= 0)  // Ensure the seed point was found
+                    {
+                        regionMap[x, y] = closestSeedIndex;
+
+                        if (!regionColors.ContainsKey(closestSeedIndex))
+                        {
+                            regionColors[closestSeedIndex] = new List<Color>();
+                        }
+
+                        regionColors[closestSeedIndex].Add(pixelColor);
+
+                        if (outputMode == VoronoiOutputMode.Regions || outputMode == VoronoiOutputMode.RegionsWithEdges)
+                        {
+                            // Temporarily set to any color; will overwrite with average color later
+                            voronoiTexture.SetPixel(x, y, Color.clear);
+                        }
+                    }
                 }
             }
         }
@@ -261,7 +282,7 @@ public class VoronoiDiagram : MonoBehaviour
                 {
                     voronoiTexture.SetPixel(x, y, edgeColor); // All pixels edge color for edge-only mode
                 }
-                else
+                else if (regionColors.ContainsKey(regionIndex))  // Check if the regionIndex has been recorded
                 {
                     voronoiTexture.SetPixel(x, y, regionColor);
 
@@ -292,9 +313,7 @@ public class VoronoiDiagram : MonoBehaviour
 
     private Color AverageColor(List<Color> colors)
     {
-        // TODO
-        // exclude points with large alpha channel
-        float totalR = 0, totalG = 0, totalB = 0, totalA = 0;
+        float totalR = 0, totalG = 0, totalB = 0;
         int count = colors.Count;
 
         foreach (var color in colors)
@@ -302,10 +321,9 @@ public class VoronoiDiagram : MonoBehaviour
             totalR += color.r;
             totalG += color.g;
             totalB += color.b;
-            totalA += color.a;
         }
 
-        return new Color(totalR / count, totalG / count, totalB / count, totalA / count);
+        return new Color(totalR / count, totalG / count, totalB / count, baseAlphaChannel);
     }
 
     private Color[] GenerateColorsFromTexture(int count, Vector2[] points, Texture2D texture)
@@ -472,16 +490,19 @@ public enum VoronoiOutputMode
 public class ColorDensityTextureGenerator
 {
     private Texture2D originalTexture;
+    private float alphaThreshold;
 
-    public ColorDensityTextureGenerator(Texture2D texture)
+    public ColorDensityTextureGenerator(Texture2D texture, float alphaThreshold)
     {
         originalTexture = texture;
+        this.alphaThreshold = alphaThreshold;
     }
 
     public Texture2D GenerateColorDensityTexture()
     {
         int width = originalTexture.width;
         int height = originalTexture.height;
+        float alphaChannel = 1;
         Texture2D newTexture = new Texture2D(width, height);
 
         for (int x = 0; x < width; x++)
@@ -489,8 +510,10 @@ public class ColorDensityTextureGenerator
             for (int y = 0; y < height; y++)
             {
                 float colorChange = CalculateColorChange(x, y);
+                if (colorChange == -1)
+                    alphaChannel = 0;
                 float normalizedChange = Mathf.Clamp(colorChange, 0, 1);
-                newTexture.SetPixel(x, y, new Color(normalizedChange, normalizedChange, normalizedChange));
+                newTexture.SetPixel(x, y, new Color(normalizedChange, normalizedChange, normalizedChange, alphaChannel));
             }
         }
 
@@ -504,6 +527,9 @@ public class ColorDensityTextureGenerator
         float colorChangeSum = 0;
         int count = 0;
 
+        if (currentColor.a <= alphaThreshold)
+            return -1;
+
         for (int i = -1; i <= 1; i++)
         {
             for (int j = -1; j <= 1; j++)
@@ -514,12 +540,20 @@ public class ColorDensityTextureGenerator
                 if (checkX >= 0 && checkX < originalTexture.width && checkY >= 0 && checkY < originalTexture.height)
                 {
                     Color neighborColor = originalTexture.GetPixel(checkX, checkY);
-                    colorChangeSum += (currentColor - neighborColor).magnitude;
+                    // Compute the color difference manually for each channel
+                    float rDiff = currentColor.r - neighborColor.r;
+                    float gDiff = currentColor.g - neighborColor.g;
+                    float bDiff = currentColor.b - neighborColor.b;
+                    float aDiff = currentColor.a - neighborColor.a;
+
+                    // Compute the Euclidean distance between the two colors
+                    float colorDiffMagnitude = Mathf.Sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff + aDiff * aDiff);
+                    colorChangeSum += colorDiffMagnitude;
                     count++;
                 }
             }
         }
 
-        return colorChangeSum / count;
+        return count > 0 ? colorChangeSum / count : 0;
     }
 }
