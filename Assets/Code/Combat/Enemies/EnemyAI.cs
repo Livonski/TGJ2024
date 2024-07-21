@@ -11,11 +11,14 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float avoidanceStrength = 1.5f;
     [SerializeField] private float enemyDetectionRadius = 2f;
 
+    [SerializeField] private Animator animator;
+
 
     [SerializeField] private GameObject player;
     private Movable movable;
     private Shooter shooter;
     private Vector2 currentDirection;
+    private bool facingRight;
     private float directionChangeInterval = 3f;
     private float nextDirectionChangeTime;
 
@@ -85,6 +88,7 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleIdle()
     {
+        animator.SetBool("isMoving", false);
         if (IsPlayerInRange(detectionRange))
         {
             SetState(eligibleToShoot && IsPlayerInRange(shootingRange) && CanHitPlayer() ? State.Shooting : State.Chasing);
@@ -93,6 +97,7 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleWandering()
     {
+        animator.SetBool("isMoving", true);
         if (Time.time >= nextDirectionChangeTime)
         {
             ChangeDirectionRandomly();
@@ -100,6 +105,9 @@ public class EnemyAI : MonoBehaviour
 
         currentDirection += AvoidOtherEnemies();
         currentDirection.Normalize();
+
+        facingRight = currentDirection.x > 0;
+        ChangeFacingDirection();
 
         movable.MoveInDirection(currentDirection);
 
@@ -111,9 +119,12 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleChasing()
     {
+        animator.SetBool("isMoving", true);
         currentDirection = (player.transform.position - transform.position).normalized;
         currentDirection += AvoidOtherEnemies();
         currentDirection.Normalize();
+        facingRight = currentDirection.x > 0;
+        ChangeFacingDirection();
 
         movable.MoveInDirection(currentDirection);
 
@@ -125,6 +136,8 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleShooting()
     {
+        //animator.SetTrigger("attacked");
+
         currentDirection = (player.transform.position - transform.position).normalized;
         shooter.ShootInDirection(currentDirection);
 
@@ -184,6 +197,11 @@ public class EnemyAI : MonoBehaviour
     {
         currentDirection = new Vector2(Random.Range(-1f, 1f), 0).normalized;
         nextDirectionChangeTime = Time.time + directionChangeInterval;
+    }
+
+    private void ChangeFacingDirection()
+    {
+        transform.localRotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
     }
 
     private void SetState(State newState)
