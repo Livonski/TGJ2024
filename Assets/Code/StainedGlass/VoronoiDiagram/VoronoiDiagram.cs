@@ -15,7 +15,7 @@ public class VoronoiDiagram : MonoBehaviour
     [SerializeField] private Color edgeColor = Color.black;
 
     [Tooltip("Thickness of the edges between Voronoi regions.")]
-    [SerializeField] private float edgeThickness = 1.0f;
+    [SerializeField] private int edgeThickness = 1;
 
     [Tooltip("Controls the falloff rate of the edge color blending into the region color.")]
     [SerializeField] private float edgeFalloff = 5.0f;  // Higher values mean a sharper transition
@@ -291,7 +291,12 @@ public class VoronoiDiagram : MonoBehaviour
 
                 if (outputMode == VoronoiOutputMode.Edges)
                 {
-                    voronoiTexture.SetPixel(x, y, edgeColor); // All pixels edge color for edge-only mode
+                    float edgeStrength = IsOnEdge(x, y, regionMap, width, height, edgeThickness, edgeFalloff);
+                    //Debug.Log($"edge strength: {edgeStrength}");
+                    float colorR = Mathf.Clamp01(voronoiTexture.GetPixel(x, y).r * (1 - edgeStrength) + edgeColor.r * edgeStrength);
+                    float colorG = Mathf.Clamp01(voronoiTexture.GetPixel(x, y).g * (1 - edgeStrength) + edgeColor.g * edgeStrength);
+                    float colorB = Mathf.Clamp01(voronoiTexture.GetPixel(x, y).b * (1 - edgeStrength) + edgeColor.b * edgeStrength);
+                    voronoiTexture.SetPixel(x, y, new Color(colorR, colorG, colorB));
                 }
                 else if (regionColors.ContainsKey(regionIndex))  // Check if the regionIndex has been recorded
                 {
@@ -300,10 +305,14 @@ public class VoronoiDiagram : MonoBehaviour
                     if (outputMode == VoronoiOutputMode.RegionsWithEdges)
                     {
                         // Apply edge color if this pixel is on the border
-                        if (IsOnEdge(x, y, regionMap, width, height))
-                        {
-                            voronoiTexture.SetPixel(x, y, edgeColor);
-                        }
+                        //if (IsOnEdge(x, y, regionMap, width, height))
+                        //{
+                        //}
+                        float edgeStrength = IsOnEdge(x, y, regionMap, width, height, edgeThickness, edgeFalloff);
+                        float colorR = Mathf.Clamp01(voronoiTexture.GetPixel(x,y).r * (1 - edgeStrength) + edgeColor.r * edgeStrength);
+                        float colorG = Mathf.Clamp01(voronoiTexture.GetPixel(x, y).g * (1 - edgeStrength) + edgeColor.g * edgeStrength);
+                        float colorB = Mathf.Clamp01(voronoiTexture.GetPixel(x, y).b * (1 - edgeStrength) + edgeColor.b * edgeStrength);
+                        voronoiTexture.SetPixel(x, y, new Color(colorR, colorG, colorB));
                     }
                 }
             }
@@ -320,6 +329,36 @@ public class VoronoiDiagram : MonoBehaviour
                (x < width - 1 && regionMap[x + 1, y] != currentRegion) ||
                (y > 0 && regionMap[x, y - 1] != currentRegion) ||
                (y < height - 1 && regionMap[x, y + 1] != currentRegion);
+    }
+
+    private float IsOnEdge(int x, int y, int[,] regionMap, int width, int height, int edgeThickness, float edgeFalloff)
+    {
+        int currentRegion = regionMap[x, y];
+        float edgeIntensity = 0f;
+
+        // Check pixels within the edgeThickness distance to see if they are in the same region
+        for (int dx = -edgeThickness; dx <= edgeThickness; dx++)
+        {
+            for (int dy = -edgeThickness; dy <= edgeThickness; dy++)
+            {
+                int nx = x + dx;
+                int ny = y + dy;
+
+                if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                {
+                    if (dx != 0 || dy != 0)
+                    {
+                        if (regionMap[nx, ny] != currentRegion)
+                        {
+                            float distance = Mathf.Sqrt(dx * dx + dy * dy);
+                            float weight = Mathf.Exp(-distance / edgeFalloff);
+                            edgeIntensity += weight;
+                        }
+                    }
+                }
+            }
+        }
+        return edgeIntensity;
     }
 
     private Color AverageColor(List<Color> colors)
