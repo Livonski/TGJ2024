@@ -35,6 +35,14 @@ public class VoronoiDiagram : MonoBehaviour
     [Range(0.0f, 1.0f)]
     [SerializeField] private float alphaThreshold;
 
+    [Range(0.0f, 1.0f)]
+    [SerializeField] private float noiseFactor;
+    [SerializeField] private float scale;
+    [SerializeField] private int octaves;
+    [SerializeField] private float persistence;
+    [SerializeField] private float lacunarity;
+    [SerializeField] private int noiseSeed;
+
     private Texture2D voronoiTexture;
     private Quadtree quadtree;
 
@@ -43,6 +51,7 @@ public class VoronoiDiagram : MonoBehaviour
         try
         {
             GenerateVoronoiTexture();
+            applyNoise();
             ApplyTexture(voronoiTexture);
         }
         catch (System.Exception ex)
@@ -339,6 +348,33 @@ public class VoronoiDiagram : MonoBehaviour
             colors[i] = texture.GetPixel(x, y);
         }
         return colors;
+    }
+
+    private void applyNoise()
+    {
+        PerlinNoise perlinNoise = new PerlinNoise(sourceTexture.width, sourceTexture.height, scale, octaves, persistence, lacunarity,noiseSeed, 0, 0);
+        PerlinNoise alphaPerlinNoise = new PerlinNoise(sourceTexture.width, sourceTexture.height, scale, octaves, persistence, lacunarity, noiseSeed, -100, -100);
+        float[,] noiseValues = perlinNoise.GenerateTexture();
+        float[,] alphaNoiseValues = alphaPerlinNoise.GenerateTexture();
+
+        for (int y = 0; y < sourceTexture.height; y++)
+        {
+            for (int x = 0; x < sourceTexture.width; x++)
+            {
+                Color sourceColor = voronoiTexture.GetPixel(x, y);
+                float noiseValue = noiseValues[x, y];
+                float alphaValue = alphaNoiseValues[x, y];
+
+                float colorR = Mathf.Clamp01(sourceColor.r * (1 - noiseFactor) + noiseValue * noiseFactor);
+                float colorG = Mathf.Clamp01(sourceColor.g * (1 - noiseFactor) + noiseValue * noiseFactor);
+                float colorB = Mathf.Clamp01(sourceColor.b * (1 - noiseFactor) + noiseValue * noiseFactor);
+                float colorA = Mathf.Clamp01(sourceColor.a * (1 - noiseFactor) + alphaValue * noiseFactor);
+                Color newColor = new Color(colorR, colorG, colorB, colorA);
+                //Debug.Log($"new color: {newColor}, prev color {sourceColor}, noiseValue: {noiseValue}");
+                voronoiTexture.SetPixel(x, y, newColor);
+            }
+        }
+        voronoiTexture.Apply();
     }
 
     public void ApplyTexture(Texture2D texture)

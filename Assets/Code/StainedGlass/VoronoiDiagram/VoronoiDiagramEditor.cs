@@ -13,7 +13,7 @@ public class VoronoiDiagramEditor : Editor
         if (GUILayout.Button("Generate Voronoi Texture"))
         {
             voronoiDiagram.GenerateVoronoiTexture();
-            voronoiDiagram.ApplyTexture();
+            //voronoiDiagram.ApplyTexture();
         }
     }
 }
