@@ -410,6 +410,8 @@ public class VoronoiDiagram : MonoBehaviour
             for (int x = 0; x < sourceTexture.width; x++)
             {
                 Color sourceColor = voronoiTexture.GetPixel(x, y);
+                if (sourceColor.a <= alphaThreshold)
+                    continue;
                 float noiseValue = noiseValues[x, y];
                 float alphaValue = alphaNoiseValues[x, y];
 

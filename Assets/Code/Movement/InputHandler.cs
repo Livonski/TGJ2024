@@ -4,12 +4,15 @@ using UnityEngine;
 public class InputHandler : MonoBehaviour
 {
     [SerializeField] private float inoutCashingTime;
+    [SerializeField] private Animator animator;
+
 
     private Movable movable;
     private JumpController jumpController;
     private DashController dashController;
     private Shooter shooter;
     private Damageable damageable;
+    private GroundChecker groundChecker;
 
     private Vector2 facingDirection;
 
@@ -23,14 +26,22 @@ public class InputHandler : MonoBehaviour
         dashController = GetComponent<DashController>();
         shooter = GetComponent<Shooter>();
         damageable = GetComponent<Damageable>();
+        //animator = GetComponent<Animator>();
+        groundChecker = GetComponent<GroundChecker>();
     }
 
     private void Update()
     {
         float horizontalDirection = Input.GetAxis("Horizontal");
+
+        transform.localRotation = Quaternion.Euler(0, horizontalDirection > 0 ? 0 : 180, 0);
         facingDirection = horizontalDirection > 0 ? Vector2.right : Vector2.left;
         Vector2 inputVector = new Vector2(horizontalDirection, 0);
         movable.MoveInDirection(inputVector);
+        Debug.Log($"horizontalDirection != 0: {horizontalDirection != 0}, groundChecker.IsGrounded(): {groundChecker.IsGrounded()}");
+        animator.SetBool("isRunning", horizontalDirection != 0);
+        animator.SetBool("isJumping", jumpController.hasJumped());
+        animator.SetBool("isDashing", dashController.hasDashed());
 
         if (Input.GetMouseButtonDown(0) && AbilityManager.Instance.HasAbility("shooting")) // Checks if the left mouse button is clicked
         {
@@ -75,10 +86,14 @@ public class InputHandler : MonoBehaviour
             if (cash.getKeyCode() == KeyCode.Space)
             {
                 success = jumpController.TryJump();
+                if (success)
+                    animator.SetTrigger("takeOff");
             }
             if (cash.getKeyCode() == KeyCode.LeftShift)
             {
                 success = dashController.TryDash(facingDirection);
+                if (success)
+                    animator.SetTrigger("dashed");
             }
             if (cash.getKeyCode() == KeyCode.E)
             {
