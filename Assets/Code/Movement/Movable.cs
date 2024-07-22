@@ -84,7 +84,7 @@ public class Movable : MonoBehaviour
         }
         Vector2 targetVelocity = surfaceSlider.projectVector(groundNormal, inputDirection);
         Vector2 velocityDifference = targetVelocity - movementPart;
-        float accelerationRate = Mathf.Abs(velocityDifference.x) > 0.01f ? accelerationPerSecond : decelerationPerSecond;
+        float accelerationRate = (Mathf.Abs(velocityDifference.x) > 0.01f ? accelerationPerSecond : decelerationPerSecond);
         Vector2 movementIncrement = velocityDifference.normalized * accelerationRate * Time.fixedDeltaTime;
 
         // Clamp the movement increment to not exceed the velocity difference

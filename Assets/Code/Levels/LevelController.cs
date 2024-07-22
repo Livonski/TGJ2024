@@ -62,6 +62,7 @@ public class LevelController : MonoBehaviour
     {
         int lastLevelIndex = PlayerPrefs.GetInt("LastLevelIndex", 1);
         lastLevelIndex = lastLevelIndex == 0 ? 1 : lastLevelIndex;
+        FindObjectOfType<AbilityManager>().ReloadAbilities(lastLevelIndex);
 
         if (lastLevelIndex < SceneManager.sceneCountInBuildSettings)
         {
