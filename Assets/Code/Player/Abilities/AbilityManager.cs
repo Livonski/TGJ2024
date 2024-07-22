@@ -6,8 +6,8 @@ public class AbilityManager : MonoBehaviour
     [SerializeField] private bool godMode;
     public static AbilityManager Instance { get; private set; }
 
-    private JumpController jumpController;
-    private GameObject player;
+    //[SerializeField] private InputHandler jumpController;
+    //[SerializeField] private GameObject player;
 
     private HashSet<string> abilities = new HashSet<string>();
 
@@ -22,8 +22,8 @@ public class AbilityManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-        player = GameObject.FindGameObjectWithTag("Player");
-        jumpController = player.GetComponent<JumpController>();
+        //player = GameObject.FindGameObjectWithTag("Player");
+        //jumpController = GameObject.FindGameObjectWithTag("Player").GetComponent<InputHandler>();
         if (godMode)
             enableGodMode();
     }
@@ -32,7 +32,7 @@ public class AbilityManager : MonoBehaviour
     {
         GrantAbility("dash");
         //GrantAbility("doubleJump");
-        GrantAbility("shield");
+        //GrantAbility("shield");
         GrantAbility("shooting");
     }
 
@@ -40,9 +40,9 @@ public class AbilityManager : MonoBehaviour
     {
         if (abilities.Count < 4)
         {
+            //player = GameObject.FindGameObjectWithTag("Player");
+            //jumpController = player.GetComponent<InputHandler>();
             abilities.Add(abilityName);
-            if (abilityName == "doubleJump")
-                jumpController.setMaxJumpCharges(2);
             Debug.Log($"Ability granted: {abilityName}");
         }
         else

@@ -15,6 +15,7 @@ public class InputHandler : MonoBehaviour
     private Damageable damageable;
     private GroundChecker groundChecker;
     private PauseMenu pauseMenu;
+    private AbilityManager abilityManager;
 
     private Vector2 facingDirection;
 
@@ -43,6 +44,10 @@ public class InputHandler : MonoBehaviour
 
     private void Update()
     {
+        abilityManager = FindObjectOfType<AbilityManager>();
+        if (abilityManager.HasAbility("doubleJump"))
+            jumpController.setMaxJumpCharges(2);
+
         pauseMenu = FindObjectOfType<PauseMenu>();
         float horizontalDirection = Input.GetAxis("Horizontal");
 

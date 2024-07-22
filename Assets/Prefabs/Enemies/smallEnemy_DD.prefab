@@ -286,6 +286,7 @@ MonoBehaviour:
   shakeMagnitude: 0
   shakeDuration: 0
   displayHealth: 0
+  isPlayer: 0
 --- !u!50 &5041644025059476299
 Rigidbody2D:
   serializedVersion: 4
@@ -425,7 +426,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e3cef724e5ed2f418ad9585f757fbce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 5
+  maxSpeed: 7
   accelerationTime: 1.5
   decelerationTime: 0.5
   gravity: 0.4

@@ -24,7 +24,6 @@ public class HealthDisplay : MonoBehaviour
 
         if (target != null && displayHealth)
         {
-            Debug.Log("displaying health");
             DisplayHealth();
         }
     }
@@ -38,7 +37,6 @@ public class HealthDisplay : MonoBehaviour
 
         if (healthBar != null)
         {
-            Debug.Log((float)target.Health / target.MaxHealth);
             healthBar.value = (float)target.Health / target.MaxHealth;
         }
     }
