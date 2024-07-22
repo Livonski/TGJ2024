@@ -53,6 +53,11 @@ public class LevelController : MonoBehaviour
         }
     }
 
+    public void reload()
+    {
+        ContinueLastLevel();
+    }
+
     public static void ContinueLastLevel()
     {
         int lastLevelIndex = PlayerPrefs.GetInt("LastLevelIndex", 1);
@@ -72,8 +77,8 @@ public class LevelController : MonoBehaviour
     public void ReloadCurrentLevel()
     {
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(0);
         SceneManager.LoadScene(currentSceneIndex);
-        ResetPlayerPosition();
         PlayerPrefs.SetInt("LastLevelIndex", currentSceneIndex);
         PlayerPrefs.Save();
     }

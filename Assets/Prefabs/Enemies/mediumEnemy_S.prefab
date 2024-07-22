@@ -627,8 +627,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2633cd16f90f8c4c819044d6bad44f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 10
-  maxHealth: 10
+  health: 15
+  maxHealth: 15
   shieldHealth: 50
   shieldDuration: 10
   invulnerabilityDuration: 0

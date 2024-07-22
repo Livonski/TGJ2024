@@ -7,6 +7,7 @@ public class AbilityManager : MonoBehaviour
     public static AbilityManager Instance { get; private set; }
 
     private JumpController jumpController;
+    private GameObject player;
 
     private HashSet<string> abilities = new HashSet<string>();
 
@@ -21,7 +22,8 @@ public class AbilityManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-        jumpController = GetComponent<JumpController>();
+        player = GameObject.FindGameObjectWithTag("Player");
+        jumpController = player.GetComponent<JumpController>();
         if (godMode)
             enableGodMode();
     }
@@ -29,7 +31,7 @@ public class AbilityManager : MonoBehaviour
     private void enableGodMode()
     {
         GrantAbility("dash");
-        GrantAbility("doubleJump");
+        //GrantAbility("doubleJump");
         GrantAbility("shield");
         GrantAbility("shooting");
     }

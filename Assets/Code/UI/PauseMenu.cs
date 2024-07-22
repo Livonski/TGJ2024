@@ -32,7 +32,7 @@ public class PauseMenu : MonoBehaviour
 
     public void ReloadLevel()
     {
-        FindObjectOfType<LevelController>().ReloadCurrentLevel();
+        GameObject.FindGameObjectWithTag("Player").GetComponent<Damageable>().TakeDamage(500);
     }
 
     public void ExitGame()

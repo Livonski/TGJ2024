@@ -6,6 +6,8 @@ public class HealthDisplay : MonoBehaviour
     [SerializeField] private Damageable target;
     [SerializeField] private Text healthText;
     [SerializeField] private Slider healthBar;
+
+    [SerializeField] private bool displayHealth = false;
     private void Awake()
     {
         target = GetComponent<Damageable>();
@@ -16,9 +18,13 @@ public class HealthDisplay : MonoBehaviour
     {
         if (healthBar == null)
             healthBar = GameObject.FindGameObjectWithTag("healthDisplay").GetComponent<Slider>();
+        if (target == null)
+            target = GameObject.FindGameObjectWithTag("Player").GetComponent<Damageable>();
 
-        if (target != null)
+
+        if (target != null && displayHealth)
         {
+            Debug.Log("displaying health");
             DisplayHealth();
         }
     }
@@ -32,6 +38,7 @@ public class HealthDisplay : MonoBehaviour
 
         if (healthBar != null)
         {
+            Debug.Log((float)target.Health / target.MaxHealth);
             healthBar.value = (float)target.Health / target.MaxHealth;
         }
     }

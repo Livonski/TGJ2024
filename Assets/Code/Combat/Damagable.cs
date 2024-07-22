@@ -27,6 +27,8 @@ public class Damageable : MonoBehaviour
     public delegate void HealthChanged();
     public event HealthChanged OnHealthChanged;
 
+    [SerializeField] private bool isPlayer = false;
+
     void Update()
     {
         invulnerabilityTimer += isInvulnerable ? Time.deltaTime : 0;
@@ -88,6 +90,8 @@ public class Damageable : MonoBehaviour
 
     private void Die()
     {
+        if (isPlayer)
+            FindObjectOfType<LevelController>().reload();
         Destroy(gameObject); 
     }
 }

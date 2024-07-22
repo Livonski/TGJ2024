@@ -50,7 +50,6 @@ public class InputHandler : MonoBehaviour
         facingDirection = horizontalDirection > 0 ? Vector2.right : Vector2.left;
         Vector2 inputVector = new Vector2(horizontalDirection, 0);
         movable.MoveInDirection(inputVector);
-        Debug.Log($"horizontalDirection != 0: {horizontalDirection != 0}, groundChecker.IsGrounded(): {groundChecker.IsGrounded()}");
         animator.SetBool("isRunning", horizontalDirection != 0);
         animator.SetBool("isJumping", jumpController.hasJumped());
         animator.SetBool("isDashing", dashController.hasDashed());

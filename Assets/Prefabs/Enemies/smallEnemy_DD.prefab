@@ -277,8 +277,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2633cd16f90f8c4c819044d6bad44f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 5
-  maxHealth: 5
+  health: 10
+  maxHealth: 10
   shieldHealth: 50
   shieldDuration: 10
   invulnerabilityDuration: 0
@@ -373,6 +373,7 @@ MonoBehaviour:
   target: {fileID: 0}
   healthText: {fileID: 0}
   healthBar: {fileID: 0}
+  displayHealth: 0
 --- !u!114 &230659778957079849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,7 +442,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaacc468f9fdeb478e49d9d5721ce20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 5
+  damage: 4
   owner: {fileID: 0}
   destroyOnImpact: 0
   attackDirections:
