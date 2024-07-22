@@ -14,6 +14,9 @@ public class HealthDisplay : MonoBehaviour
 
     void Update()
     {
+        if (healthBar == null)
+            healthBar = GameObject.FindGameObjectWithTag("healthDisplay").GetComponent<Slider>();
+
         if (target != null)
         {
             DisplayHealth();

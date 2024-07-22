@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class InputHandler : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class InputHandler : MonoBehaviour
     private Shooter shooter;
     private Damageable damageable;
     private GroundChecker groundChecker;
+    private PauseMenu pauseMenu;
 
     private Vector2 facingDirection;
 
@@ -30,8 +32,18 @@ public class InputHandler : MonoBehaviour
         groundChecker = GetComponent<GroundChecker>();
     }
 
+    /*private void OnSceneLoaded(int level)
+    {
+        if (level != 0)
+        {
+            pauseMenu = FindObjectOfType<PauseMenu>();
+            Debug.Log("found something");
+        }
+    }*/
+
     private void Update()
     {
+        pauseMenu = FindObjectOfType<PauseMenu>();
         float horizontalDirection = Input.GetAxis("Horizontal");
 
         transform.localRotation = Quaternion.Euler(0, horizontalDirection > 0 ? 0 : 180, 0);
@@ -49,6 +61,11 @@ public class InputHandler : MonoBehaviour
             Vector2 shootingDirection = new Vector2(mousePosition.x - shooter.transform.position.x, mousePosition.y - shooter.transform.position.y);
 
             shooter.ShootInDirection(shootingDirection); // Call shoot method on shooter
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && pauseMenu != null)
+        {
+            pauseMenu.TogglePauseMenu();
         }
 
         updateCashTime();

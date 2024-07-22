@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class CameraFollow : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (player == null)
+            player = GameObject.FindGameObjectWithTag("Player").transform;
         Vector3 finalPosition = CalculatePosition();
         transform.position = Vector3.SmoothDamp(transform.position, finalPosition, ref velocity, smoothSpeed);
     }

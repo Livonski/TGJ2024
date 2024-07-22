@@ -44,6 +44,7 @@ public class EnemyAI : MonoBehaviour
         {
             Debug.LogError("Shooter component not found on " + gameObject.name);
         }
+        SetState(startState);
     }
 
     private void Start()
@@ -58,7 +59,10 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        switch (currentState)
+        if (player == null)
+            player = GameObject.FindGameObjectWithTag("Player");
+
+            switch (currentState)
         {
             case State.Idle:
                 HandleIdle();
