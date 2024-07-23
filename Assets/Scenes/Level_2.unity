@@ -3120,7 +3120,7 @@ MonoBehaviour:
   shooting: {fileID: 0}
   abilitiesParent: {fileID: 477198820}
   abilityManager: {fileID: 0}
-  offset: {x: 1, y: 1, z: 0}
+  radius: 2
 --- !u!1001 &488183793
 PrefabInstance:
   m_ObjectHideFlags: 0

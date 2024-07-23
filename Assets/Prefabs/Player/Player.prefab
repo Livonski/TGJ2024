@@ -283,7 +283,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 10
   accelerationTime: 1.5
-  decelerationTime: 0.5
+  decelerationTime: 0.1
   gravity: 0.4
   gravityVelocity: {x: 0, y: 0}
 --- !u!114 &2845589380850162840
